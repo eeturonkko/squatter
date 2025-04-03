@@ -46,7 +46,7 @@ function CreatePlanPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {workoutPlans.map((plan) => (
               <Link
-                href={`/plan/${plan._id}`}
+                href={`/plan/${plan._id}?id=${plan._id}`}
                 key={plan._id}
                 className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
               >
