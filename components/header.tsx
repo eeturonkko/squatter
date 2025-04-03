@@ -5,14 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Dumbbell, Menu, X } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
+
 import { SignInButton, SignOutButton, UserButton } from "@clerk/clerk-react";
+import { useConvexAuth } from "convex/react";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isSignedIn } = useAuth();
+
+  const { isAuthenticated } = useConvexAuth();
 
   // Handle scroll effect for sticky header
   useEffect(() => {
@@ -53,35 +55,39 @@ export function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === link.href
-                  ? "text-primary font-semibold"
-                  : "text-foreground/80"
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+        {isAuthenticated && (
+          <nav className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === link.href
+                    ? "text-primary font-semibold"
+                    : "text-foreground/80"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+        )}
+
+        {/* Auth Links */}
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          {isSignedIn ? (
+          {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <UserButton />
-              <div className="rounded-full border border-foreground/20 flex items-center gap-2 px-3 py-1">
+              <div className="rounded-full border border-foreground/20 flex items-center gap-2 px-3 py-1 hover:bg-foreground transition-colors hover:text-white duration-300">
                 <SignOutButton />
               </div>
             </div>
           ) : (
-            <Button className="rounded-full" variant="outline">
+            <div className="rounded-full border border-foreground/20 flex items-center gap-2 px-3 py-1 hover:bg-foreground transition-colors hover:text-white duration-300">
               <SignInButton mode="modal" />
-            </Button>
+            </div>
           )}
         </div>
 
@@ -119,7 +125,7 @@ export function Header() {
               </Link>
             ))}
             <div className="border-t my-2 pt-2 flex flex-col gap-2">
-              {isSignedIn ? (
+              {isAuthenticated ? (
                 <Button asChild size="sm" className="justify-center">
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>

@@ -24,10 +24,7 @@ export function Hero({
     text: "Create Your Plan",
     href: "/create-plan",
   },
-  secondaryCTA = {
-    text: "See How It Works",
-    href: "#how-it-works",
-  },
+
   backgroundImage = "/placeholder.svg?height=800&width=1600",
 }: HeroProps) {
   return (
@@ -70,25 +67,20 @@ export function Hero({
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              {secondaryCTA && (
-                <Button variant="outline" size="lg" asChild>
-                  <Link href={secondaryCTA.href}>{secondaryCTA.text}</Link>
-                </Button>
-              )}
             </div>
           </div>
           <div className="hidden md:flex items-center justify-center">
-            <div className="relative h-[400px] w-[400px] rounded-full bg-primary/5 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-              <div className="relative z-10 transform transition-transform duration-500 hover:scale-105">
-                <Image
-                  src="/placeholder.svg?height=300&width=300"
-                  alt="Squatter app preview"
-                  width={300}
-                  height={300}
-                  className="rounded-lg shadow-lg"
-                />
-              </div>
+            <div className="relative h-[400px] w-[400px] rounded-full bg-primary/5 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent z-0" />
+
+              <Image
+                src="/squatter.png"
+                alt="Squatter app preview"
+                fill
+                sizes="400px"
+                priority
+                className="object-cover object-center rounded-full z-10 "
+              />
             </div>
           </div>
         </div>
