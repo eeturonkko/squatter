@@ -9,4 +9,9 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+  workoutplan: defineTable({
+    name: v.string(),
+    description: v.string(),
+    userId: v.string(),
+  }),
 });

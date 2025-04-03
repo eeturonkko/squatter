@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Exo_2 } from "next/font/google";
 import { Header } from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 
 const exo = Exo_2({
@@ -31,6 +32,7 @@ export default function RootLayout({
             <div className="relative flex min-h-screen flex-col">
               <Header />
               <div className="flex-1 pt-16">{children}</div>
+              <Toaster />
             </div>
           </ConvexClientProvider>
         </ClerkProvider>
