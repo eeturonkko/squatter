@@ -14,4 +14,10 @@ export default defineSchema({
     description: v.string(),
     userId: v.string(),
   }),
+  workout: defineTable({
+    weight: v.number(),
+    reps: v.number(),
+    week: v.number(),
+    workoutplanId: v.id("workoutplan"), // Reference to the associated workoutplan
+  }),
 });
