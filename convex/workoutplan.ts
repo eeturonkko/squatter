@@ -42,3 +42,49 @@ export const getWorkoutPlansByUserId = query({
     return workoutPlans;
   },
 });
+
+export const getWorkoutPlanById = query({
+  args: {
+    id: v.id("workoutplan"),
+  },
+  handler: async (ctx, args) => {
+    const workoutPlan = await ctx.db.get(args.id);
+    if (!workoutPlan) {
+      throw new Error("Workout plan not found");
+    }
+    return workoutPlan;
+  },
+});
+
+export const createNewWorkout = mutation({
+  args: {
+    workoutPlanId: v.id("workoutplan"),
+    weight: v.number(),
+    reps: v.number(),
+    week: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const workoutId = await ctx.db.insert("workout", {
+      weight: args.weight,
+      reps: args.reps,
+      week: args.week,
+      workoutplanId: args.workoutPlanId,
+    });
+
+    return workoutId;
+  },
+});
+
+export const getWorkoutsByWorkoutPlanId = query({
+  args: {
+    workoutPlanId: v.id("workoutplan"),
+  },
+  handler: async (ctx, args) => {
+    const workouts = await ctx.db
+      .query("workout")
+      .filter((q) => q.eq(q.field("workoutplanId"), args.workoutPlanId))
+      .collect();
+
+    return workouts;
+  },
+});
