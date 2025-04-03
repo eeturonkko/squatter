@@ -35,6 +35,7 @@ const formSchema = z.object({
   weight: z.number().min(1, "Weight is required"),
   reps: z.number().min(1, "Reps are required"),
   week: z.number().min(1, "Week is required"),
+  description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,6 +55,7 @@ export default function WorkoutForm({
       weight: 0,
       reps: 0,
       week: 0,
+      description: "",
     },
   });
 
@@ -63,6 +65,7 @@ export default function WorkoutForm({
       weight: values.weight,
       reps: values.reps,
       week: values.week,
+      description: values.description,
     });
     toast("Workout submitted successfully!");
     form.reset();
@@ -150,6 +153,22 @@ export default function WorkoutForm({
                   </FormControl>
                   <FormDescription>
                     Enter the week number for this workout.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Workout Description</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Optional description" />
+                  </FormControl>
+                  <FormDescription>
+                    Enter an optional description for this workout.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

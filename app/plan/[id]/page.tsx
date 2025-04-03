@@ -21,7 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, Plus, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 
 function WorkoutPlanPage() {
   const { id } = useParams<{ id: string }>();
@@ -62,6 +62,8 @@ function WorkoutPlanPage() {
                     <TableHead>Weight</TableHead>
                     <TableHead>Reps</TableHead>
                     <TableHead>Week</TableHead>
+                    <TableHead>Description</TableHead>
+
                     <TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -73,6 +75,7 @@ function WorkoutPlanPage() {
                       <TableCell className="font-medium">
                         {workout.week}
                       </TableCell>
+                      <TableCell>{workout.description}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="icon">
@@ -95,10 +98,6 @@ function WorkoutPlanPage() {
               <p className="text-muted-foreground mb-4">
                 No workouts found for this plan
               </p>
-              <Button variant="outline" className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add your first workout
-              </Button>
             </div>
           )}
         </CardContent>

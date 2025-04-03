@@ -62,6 +62,7 @@ export const createNewWorkout = mutation({
     weight: v.number(),
     reps: v.number(),
     week: v.number(),
+    description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const workoutId = await ctx.db.insert("workout", {
@@ -69,6 +70,7 @@ export const createNewWorkout = mutation({
       reps: args.reps,
       week: args.week,
       workoutplanId: args.workoutPlanId,
+      description: args.description,
     });
 
     return workoutId;

@@ -19,5 +19,6 @@ export default defineSchema({
     reps: v.number(),
     week: v.number(),
     workoutplanId: v.id("workoutplan"), // Reference to the associated workoutplan
+    description: v.optional(v.string()),
   }),
 });
