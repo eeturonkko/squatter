@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "Squatter",
   description: "Create and manage your own progession plans with Squatter.",
   icons: {
-    icon: "/convex.svg",
+    icon: "/dumbbell.png",
   },
 };
 
