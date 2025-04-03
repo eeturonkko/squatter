@@ -33,8 +33,7 @@ export function Header() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Create Plan", href: "/create-plan" },
-    { name: "My Plans", href: "/my-plans" },
+    { name: "Plans", href: "/create-plan" },
   ];
 
   return (
