@@ -50,7 +50,7 @@ function WorkoutPlanPage() {
         <CardHeader className="pb-3">
           <CardTitle>Workouts</CardTitle>
           <CardDescription>
-            All workouts in this plan. Manage your weekly workout schedule.
+            All workouts in this plan. You can add, edit or delete workouts.
           </CardDescription>
         </CardHeader>
         <CardContent>
