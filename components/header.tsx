@@ -34,6 +34,7 @@ export function Header() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Plans", href: "/create-plan" },
+    { name: "Weight", href: "/weight" },
   ];
 
   return (
