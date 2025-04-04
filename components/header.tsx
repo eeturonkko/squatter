@@ -35,6 +35,7 @@ export function Header() {
     { name: "Home", href: "/" },
     { name: "Plans", href: "/create-plan" },
     { name: "Weight", href: "/weight" },
+    { name: "Workouts", href: "/workouts" },
   ];
 
   return (
