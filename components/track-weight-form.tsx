@@ -58,23 +58,31 @@ export default function TrackWeightForm() {
     defaultValues: {
       weight: 0,
       date: undefined,
-      weekId: "",
+      weekId: "", // will be overwritten on first selection
     },
+    shouldUnregister: false, // this helps retain values after reset
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    if (!values.weekId) {
+      console.warn("Week ID missing, aborting");
+      return;
+    }
+
     createWeight({
       weekId: values.weekId as Id<"week">,
       weight: values.weight,
       date: values.date.toISOString(),
     });
-    form.reset();
-    setSuccess(true);
 
-    setTimeout(() => {
-      setSuccess(false);
-    }, 3000);
+    form.reset({
+      weight: 0,
+      date: undefined,
+      weekId: values.weekId,
+    });
+
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
   }
 
   return (
