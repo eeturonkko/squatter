@@ -72,7 +72,7 @@ export function Hero({
                 </Link>
               </Button>
               <Button size="lg" asChild>
-                <Link href={primaryCTA.href}>
+                <Link href={secondaryCTA.href}>
                   {secondaryCTA.text}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>

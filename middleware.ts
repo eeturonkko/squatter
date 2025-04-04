@@ -8,6 +8,8 @@ const isProtectedRoute = createRouteMatcher([
   "/weeks",
   "/week/:id",
   "/weight",
+  "/workouts",
+  "/workouts/:id",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
