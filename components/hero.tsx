@@ -18,11 +18,15 @@ interface HeroProps {
 }
 
 export function Hero({
-  headline = "Track your weight, workouts, and indiviual fitness plans",
-  subheadline = "Get started with Squatter today!",
+  headline = "Build your squats with Squatter.",
+  subheadline = "With Squatter, you can track you workouts, monitor your weight and create individualized plans for your fitness goals.",
   primaryCTA = {
     text: "Create Your Plan",
     href: "/create-plan",
+  },
+  secondaryCTA = {
+    text: "Track your weight",
+    href: "/weight",
   },
 
   backgroundImage = "/placeholder.svg?height=800&width=1600",
@@ -64,6 +68,12 @@ export function Hero({
               <Button size="lg" asChild>
                 <Link href={primaryCTA.href}>
                   {primaryCTA.text}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="lg" asChild>
+                <Link href={primaryCTA.href}>
+                  {secondaryCTA.text}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
