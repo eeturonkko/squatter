@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Id } from "@/convex/_generated/dataModel";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,8 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Week, WeightEntry } from "@/lib/types";
+/* import type { Week, WeightEntry } from "@/lib/types"; */
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const formSchema = z.object({
   weight: z.coerce.number().positive({
@@ -46,17 +49,26 @@ const formSchema = z.object({
 });
 
 export default function TrackWeightForm() {
+  const weeks = useQuery(api.weeksAndWeight.getWeeksByUserId);
+  const createWeight = useMutation(api.weeksAndWeight.createNewDailyWeight);
   const [success, setSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      weight: undefined,
+      weight: 0,
+      date: undefined,
+      weekId: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    createWeight({
+      weekId: values.weekId as Id<"week">,
+      weight: values.weight,
+      date: values.date.toISOString(),
+    });
     form.reset();
     setSuccess(true);
 
@@ -76,7 +88,7 @@ export default function TrackWeightForm() {
         </Alert>
       )}
 
-      {weeks.length === 0 ? (
+      {weeks?.length === 0 ? (
         <div className="text-center py-6">
           <p className="text-muted-foreground">
             No weeks created yet. Please create a week first.
@@ -156,8 +168,8 @@ export default function TrackWeightForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {weeks.map((week) => (
-                        <SelectItem key={week.id} value={week.id}>
+                      {weeks?.map((week) => (
+                        <SelectItem key={week._id} value={week._id}>
                           {week.name} ({week.target})
                         </SelectItem>
                       ))}
