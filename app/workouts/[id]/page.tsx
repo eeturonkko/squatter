@@ -330,7 +330,7 @@ export default function WorkoutDetailPage() {
                           name="weight"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Weight (kg/lbs)</FormLabel>
+                              <FormLabel>Weight (kg)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -433,10 +433,9 @@ export default function WorkoutDetailPage() {
                             Last:{" "}
                             {format(new Date(latestLog.created_at), "MMM d")}
                           </span>
-                          <span>{latestLog.weight} kg/lbs</span>
-                          <span>
-                            {latestLog.sets}×{latestLog.reps}
-                          </span>
+                          <span>{latestLog.weight} kg</span>
+
+                          <span>{latestLog.sets} sets</span>
                         </div>
                       </div>
                     </AccordionTrigger>
@@ -519,7 +518,7 @@ export default function WorkoutDetailPage() {
 
                   return (
                     <AccordionItem key={exercise._id} value={exercise._id}>
-                      <AccordionTrigger className="hover:no-underline">
+                      <AccordionTrigger className="hover:no-underline ">
                         <div className="flex flex-col items-start text-left">
                           <h3 className="text-lg font-semibold">
                             {exercise.exercise_name}
