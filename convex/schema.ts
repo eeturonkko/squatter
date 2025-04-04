@@ -21,4 +21,15 @@ export default defineSchema({
     workoutplanId: v.id("workoutplan"), // Reference to the associated workoutplan
     description: v.optional(v.string()),
   }),
+  week: defineTable({
+    name: v.string(),
+    target: v.string(),
+    isArchived: v.boolean(),
+    userId: v.string(),
+  }),
+  dailyWeight: defineTable({
+    weight: v.float64(),
+    date: v.string(),
+    weekId: v.id("week"), // Reference to the associated week
+  }),
 });

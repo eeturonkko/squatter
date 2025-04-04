@@ -51,7 +51,6 @@ export default function WorkoutFormDialog() {
   });
 
   function onSubmit(values: FormValues) {
-    // You would typically save this data to your backend
     console.log(values);
     createWorkoutPlan(values);
     toast("Plan created successfully!");

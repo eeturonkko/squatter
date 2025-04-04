@@ -34,11 +34,12 @@ export function Header() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Plans", href: "/create-plan" },
+    { name: "Weight", href: "/weight" },
   ];
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full transition-all duration-300  ${
+      className={`fixed top-0 z-50  w-full transition-all duration-300  ${
         isScrolled
           ? "bg-background/95 backdrop-blur-sm shadow-sm"
           : "bg-background"
