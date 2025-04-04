@@ -5,6 +5,9 @@ const isProtectedRoute = createRouteMatcher([
   "/create-plan",
   "/plan",
   "/plan/:id",
+  "/weeks",
+  "/week/:id",
+  "/weight",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

@@ -30,7 +30,7 @@ export const getWeeksByUserId = query({
     // Get the authenticated user's ID
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("You must be logged in to view workout plans");
+      return [];
     }
 
     const userId = identity.tokenIdentifier;

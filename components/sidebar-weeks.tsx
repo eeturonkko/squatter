@@ -21,8 +21,8 @@ import {
 
 export function WeeksSidebar() {
   const { isAuthenticated } = useConvexAuth();
-  const weeks = useQuery(api.weeksAndWeight.getWeeksByUserId);
   const pathname = usePathname();
+  const weeks = useQuery(api.weeksAndWeight.getWeeksByUserId);
 
   // Don't render sidebar if not authenticated
   if (!isAuthenticated) {
