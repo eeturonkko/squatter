@@ -18,8 +18,8 @@ interface HeroProps {
 }
 
 export function Hero({
-  headline = "Build Your Squat. Build Your Strength.",
-  subheadline = "Squatter creates progression plans tailored to your goals, experience, and weekly training.",
+  headline = "Track your weight, workouts, and indiviual fitness plans",
+  subheadline = "Get started with Squatter today!",
   primaryCTA = {
     text: "Create Your Plan",
     href: "/create-plan",
