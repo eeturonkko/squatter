@@ -1,7 +1,8 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import {
   LineChart,
@@ -23,15 +33,87 @@ import {
 } from "recharts";
 import { Dumbbell, Scale } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Form schema for editing a week
+const weekFormSchema = z.object({
+  name: z.string().min(1, "Week name is required"),
+  target: z.enum(["bulk", "cut"], {
+    required_error: "Please select a target type",
+  }),
+});
+
+type WeekFormValues = z.infer<typeof weekFormSchema>;
 
 export default function WeekPage() {
+  const router = useRouter();
   const params = useParams();
   const weekId = params.id as Id<"week">;
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const week = useQuery(api.weeksAndWeight.getWeekById, { id: weekId });
+  const updateWeekById = useMutation(api.weeksAndWeight.updateWeekById);
+  const deleteWeekById = useMutation(api.weeksAndWeight.deleteWeekById);
   const weights = useQuery(api.weeksAndWeight.getDailyWeightsByWeekId, {
     weekId,
   });
+
+  // Reset form when week data changes
+  const form = useForm<WeekFormValues>({
+    resolver: zodResolver(weekFormSchema),
+    defaultValues: {
+      name: "",
+      target: "bulk",
+    },
+    // Use type assertion to ensure the target is of the correct type
+    values: week
+      ? {
+          name: week.name,
+          target:
+            week.target === "bulk" || week.target === "cut"
+              ? week.target
+              : ("bulk" as const),
+        }
+      : undefined,
+  });
+
+  const onSubmit = (data: WeekFormValues) => {
+    if (!week) return;
+
+    updateWeekById({
+      id: weekId,
+      name: data.name,
+      target: data.target,
+      isArchived: week.isArchived,
+    });
+
+    setIsDialogOpen(false);
+  };
+
+  const onDelete = () => {
+    if (!week) return;
+    deleteWeekById({ id: weekId });
+    router.push("/weight");
+  };
 
   if (!week) {
     return (
@@ -64,7 +146,94 @@ export default function WeekPage() {
             )}
           </p>
         </div>
-        <Button variant="outline">Edit Week</Button>
+        <div className="flex items-center gap-2">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Edit Week</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Week</DialogTitle>
+                <DialogDescription>
+                  Update the details for this tracking week.
+                </DialogDescription>
+              </DialogHeader>
+
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Week Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Summer Cut Week 1"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Give your week a descriptive name
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="target"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Target Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a target type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="bulk">
+                              <div className="flex items-center">
+                                <Dumbbell className="h-4 w-4 text-emerald-500 mr-2" />
+                                <span>Bulk</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="cut">
+                              <div className="flex items-center">
+                                <Scale className="h-4 w-4 text-purple-500 mr-2" />
+                                <span>Cut</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Are you bulking (gaining weight) or cutting (losing
+                          weight)?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button type="submit">Save Changes</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          <Button variant="destructive" onClick={onDelete}>
+            Delete Week
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 auto-rows-fr">
@@ -124,6 +293,47 @@ export default function WeekPage() {
                     <div className="text-lg font-bold">{entry.weight} kg</div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground flex-1 flex items-center justify-center">
+                No weight entries yet.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle>Statistics</CardTitle>
+            <CardDescription>
+              Your weight statistics for this week
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1">
+            {weights && weights.length > 0 ? (
+              <div className="space-y-2 h-full overflow-auto">
+                <div className="flex justify-between items-center p-3 border rounded-md">
+                  <div className="font-medium">Starting Weight</div>
+                  <div className="text-lg font-bold">
+                    {weights[0].weight} kg
+                  </div>
+                </div>
+                <div className="flex justify-between items-center p-3 border rounded-md">
+                  <div className="font-medium">Average Weight</div>
+                  <div className="text-lg font-bold">
+                    {(
+                      weights.reduce((acc, entry) => acc + entry.weight, 0) /
+                      weights.length
+                    ).toFixed(2)}{" "}
+                    kg
+                  </div>
+                </div>
+                <div className="flex justify-between items-center p-3 border rounded-md">
+                  <div className="font-medium">Current Weight</div>
+                  <div className="text-lg font-bold">
+                    {weights[weights.length - 1].weight} kg
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground flex-1 flex items-center justify-center">

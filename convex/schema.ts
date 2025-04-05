@@ -27,7 +27,7 @@ export default defineSchema({
     weight: v.float64(),
     date: v.string(),
     weekId: v.id("week"), // Reference to the associated week
-  }),
+  }).index("by_weekId", ["weekId"]),
   exerciseLogs: defineTable({
     periodId: v.id("trackingPeriods"),
     exerciseId: v.id("exercises"),

@@ -124,6 +124,18 @@ export const deleteWeekById = mutation({
       throw new Error("Unauthorized to delete this week");
     }
 
+    // Find all daily weights associated with this week
+    const dailyWeights = await ctx.db
+      .query("dailyWeight")
+      .withIndex("by_weekId", (q) => q.eq("weekId", args.id))
+      .collect();
+
+    // Delete all the associated daily weights
+    for (const weight of dailyWeights) {
+      await ctx.db.delete(weight._id);
+    }
+
+    // Delete the week itself
     await ctx.db.delete(args.id);
   },
 });
