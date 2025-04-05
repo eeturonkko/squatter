@@ -21,6 +21,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import {
   LineChart,
@@ -31,7 +42,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Dumbbell, Scale } from "lucide-react";
+import { Dumbbell, Scale, Trash2 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -230,9 +241,35 @@ export default function WeekPage() {
               </Form>
             </DialogContent>
           </Dialog>
-          <Button variant="destructive" onClick={onDelete}>
-            Delete Week
-          </Button>
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Week
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  week &quot;{week.name}&quot; and all associated weight
+                  entries.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-white"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
