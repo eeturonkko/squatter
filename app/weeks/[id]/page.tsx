@@ -120,9 +120,9 @@ export default function WeekPage() {
     setIsDialogOpen(false);
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!week) return;
-    deleteWeekById({ id: weekId });
+    await deleteWeekById({ id: weekId });
     router.push("/weight");
   };
 
