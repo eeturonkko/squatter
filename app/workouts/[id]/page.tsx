@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
+import type { TooltipProps } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -44,6 +45,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const exerciseSchema = z.object({
   exercise_name: z.string().min(1, "Exercise name is required"),
@@ -158,6 +169,41 @@ export default function WorkoutDetailPage() {
     setIsLogDialogOpen(false);
   };
 
+  const prepareChartData = (logs: Doc<"exerciseLogs">[]) => {
+    // Sort logs by date (oldest to newest) for proper timeline display
+    return [...logs]
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      )
+      .map((log) => ({
+        date: format(new Date(log.created_at), "MMM d"),
+        weight: log.weight,
+        reps: log.reps,
+        sets: log.sets,
+        // Include full date for tooltip
+        fullDate: format(new Date(log.created_at), "MMM d, yyyy"),
+      }));
+  };
+
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border rounded-md shadow-md p-3">
+          <p className="font-medium">{payload[0]?.payload.fullDate}</p>
+          <div className="grid grid-cols-1 gap-1 mt-2">
+            {payload.map((entry, index) => (
+              <p key={`item-${index}`} style={{ color: entry.color }}>
+                {entry.name}: {entry.value}{" "}
+                {entry.name === "Weight" ? "kg" : ""}
+              </p>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
   if (!trackingPeriod) {
     return (
       <div className="container py-10">
@@ -530,50 +576,100 @@ export default function WorkoutDetailPage() {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="space-y-4 pt-2">
-                          {logs.map((log: Doc<"exerciseLogs">) => (
-                            <Card key={log._id} className="overflow-hidden">
-                              <div className="bg-muted px-4 py-2 flex justify-between items-center">
-                                <span className="font-medium">
-                                  {format(
-                                    new Date(log.created_at),
-                                    "MMMM d, yyyy",
-                                  )}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  {format(new Date(log.created_at), "h:mm a")}
-                                </span>
-                              </div>
-                              <CardContent className="p-4">
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div className="text-center p-2 bg-muted/50 rounded-lg">
-                                    <p className="text-sm text-muted-foreground">
-                                      Weight
-                                    </p>
-                                    <p className="text-lg font-medium">
-                                      {log.weight}
-                                    </p>
-                                  </div>
-                                  <div className="text-center p-2 bg-muted/50 rounded-lg">
-                                    <p className="text-sm text-muted-foreground">
-                                      Reps
-                                    </p>
-                                    <p className="text-lg font-medium">
-                                      {log.reps}
-                                    </p>
-                                  </div>
-                                  <div className="text-center p-2 bg-muted/50 rounded-lg">
-                                    <p className="text-sm text-muted-foreground">
-                                      Sets
-                                    </p>
-                                    <p className="text-lg font-medium">
-                                      {log.sets}
-                                    </p>
-                                  </div>
+                        <div className="space-y-6 pt-2">
+                          {/* Line Chart */}
+                          <div className="h-[300px] w-full mt-4 mb-6">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart
+                                data={prepareChartData(logs)}
+                                margin={{
+                                  top: 5,
+                                  right: 30,
+                                  left: 20,
+                                  bottom: 5,
+                                }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                                <YAxis
+                                  yAxisId="left"
+                                  orientation="left"
+                                  stroke="#8884d8"
+                                />
+                                <YAxis
+                                  yAxisId="right"
+                                  orientation="right"
+                                  stroke="#82ca9d"
+                                />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Line
+                                  yAxisId="left"
+                                  type="monotone"
+                                  dataKey="weight"
+                                  name="Weight"
+                                  stroke="#8884d8"
+                                  activeDot={{ r: 8 }}
+                                  strokeWidth={2}
+                                />
+                                <Line
+                                  yAxisId="right"
+                                  type="monotone"
+                                  dataKey="reps"
+                                  name="Reps"
+                                  stroke="#82ca9d"
+                                  activeDot={{ r: 6 }}
+                                  strokeWidth={2}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+
+                          {/* Exercise Logs */}
+                          <div className="space-y-4">
+                            {logs.map((log: Doc<"exerciseLogs">) => (
+                              <Card key={log._id} className="overflow-hidden">
+                                <div className="bg-muted px-4 py-2 flex justify-between items-center">
+                                  <span className="font-medium">
+                                    {format(
+                                      new Date(log.created_at),
+                                      "MMMM d, yyyy",
+                                    )}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {format(new Date(log.created_at), "h:mm a")}
+                                  </span>
                                 </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                <CardContent className="p-4">
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                                      <p className="text-sm text-muted-foreground">
+                                        Weight
+                                      </p>
+                                      <p className="text-lg font-medium">
+                                        {log.weight}
+                                      </p>
+                                    </div>
+                                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                                      <p className="text-sm text-muted-foreground">
+                                        Reps
+                                      </p>
+                                      <p className="text-lg font-medium">
+                                        {log.reps}
+                                      </p>
+                                    </div>
+                                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                                      <p className="text-sm text-muted-foreground">
+                                        Sets
+                                      </p>
+                                      <p className="text-lg font-medium">
+                                        {log.sets}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
