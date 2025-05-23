@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -656,7 +656,6 @@ export default function WorkoutDetailPage() {
                               {format(new Date(latestLog.created_at), "MMM d")}
                             </span>
                             <span>{latestLog.weight} kg</span>
-
                             <span>{latestLog.sets} sets</span>
                           </div>
                         </div>
@@ -703,19 +702,23 @@ export default function WorkoutDetailPage() {
                                     </p>
                                   </div>
                                 </div>
-                                <div className="flex justify-end gap-2 mt-4">
+                                <div className="flex justify-end gap-2 mt-4 pt-2 border-t border-muted">
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => openEditDialog(log)}
+                                    className="hover:bg-blue-50 hover:border-blue-300 flex items-center"
                                   >
+                                    <Edit className="h-4 w-4 mr-1" />
                                     Edit
                                   </Button>
                                   <Button
                                     variant="destructive"
                                     size="sm"
                                     onClick={() => deleteExerciseLog(log._id)}
+                                    className="hover:bg-red-600 flex items-center"
                                   >
+                                    <Trash2 className="h-4 w-4 mr-1" />
                                     Delete
                                   </Button>
                                 </div>
@@ -863,24 +866,6 @@ export default function WorkoutDetailPage() {
                                           {log.sets}
                                         </p>
                                       </div>
-                                    </div>
-                                    <div className="flex justify-end gap-2 mt-4">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => openEditDialog(log)}
-                                      >
-                                        Edit
-                                      </Button>
-                                      <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() =>
-                                          deleteExerciseLog(log._id)
-                                        }
-                                      >
-                                        Delete
-                                      </Button>
                                     </div>
                                   </CardContent>
                                 </Card>
