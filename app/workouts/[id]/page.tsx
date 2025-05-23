@@ -1,5 +1,7 @@
 "use client";
 
+import { DialogTrigger } from "@/components/ui/dialog";
+
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
@@ -13,10 +15,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, PlusCircle, Edit, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  PlusCircle,
+  Edit,
+  Trash2,
+  CalendarIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -65,6 +72,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
 
 const exerciseSchema = z.object({
   exercise_name: z.string().min(1, "Exercise name is required"),
@@ -95,6 +109,12 @@ export default function WorkoutDetailPage() {
   const [logToDelete, setLogToDelete] = useState<Id<"exerciseLogs"> | null>(
     null,
   );
+  const [isEditPeriodDialogOpen, setIsEditPeriodDialogOpen] = useState(false);
+  const [editPeriodForm, setEditPeriodForm] = useState({
+    period_name: "",
+    start_date: "",
+    end_date: "",
+  });
 
   const trackingPeriod = useQuery(
     api.exercisesAndTrackingPeriods.getTrackingPeriodById,
@@ -116,6 +136,9 @@ export default function WorkoutDetailPage() {
   );
   const updateExerciseLog = useMutation(
     api.exercisesAndTrackingPeriods.updateExerciseLog,
+  );
+  const updatePeriod = useMutation(
+    api.exercisesAndTrackingPeriods.updateTrackingPeriod,
   );
 
   const periodLogs = exerciseLogs.filter(
@@ -265,6 +288,28 @@ export default function WorkoutDetailPage() {
     }
     return null;
   };
+
+  const handleEditPeriod = () => {
+    if (trackingPeriod) {
+      setEditPeriodForm({
+        period_name: trackingPeriod.period_name,
+        start_date: trackingPeriod.start_date,
+        end_date: trackingPeriod.end_date || "",
+      });
+      setIsEditPeriodDialogOpen(true);
+    }
+  };
+
+  const handleUpdatePeriod = async () => {
+    await updatePeriod({
+      id: periodId,
+      period_name: editPeriodForm.period_name,
+      start_date: editPeriodForm.start_date,
+      end_date: editPeriodForm.end_date || undefined,
+    });
+    setIsEditPeriodDialogOpen(false);
+  };
+
   if (!trackingPeriod) {
     return (
       <div className="container py-10">
@@ -295,14 +340,29 @@ export default function WorkoutDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{trackingPeriod.period_name}</h1>
-            <p className="text-muted-foreground">
-              {format(new Date(trackingPeriod.start_date), "PPP")} -
-              {trackingPeriod.end_date
-                ? format(new Date(trackingPeriod.end_date), "PPP")
-                : " Ongoing"}
-            </p>
+          <div className="flex-1">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold">
+                  {trackingPeriod.period_name}
+                </h1>
+                <p className="text-muted-foreground">
+                  {format(new Date(trackingPeriod.start_date), "PPP")} -
+                  {trackingPeriod.end_date
+                    ? format(new Date(trackingPeriod.end_date), "PPP")
+                    : " Ongoing"}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEditPeriod}
+                className="flex items-center gap-1 ml-4"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Period
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -903,6 +963,136 @@ export default function WorkoutDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog
+        open={isEditPeriodDialogOpen}
+        onOpenChange={setIsEditPeriodDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Tracking Period</DialogTitle>
+            <DialogDescription>
+              Update the name and date range for this tracking period.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="period_name">Period Name</Label>
+              <Input
+                id="period_name"
+                value={editPeriodForm.period_name}
+                onChange={(e) =>
+                  setEditPeriodForm({
+                    ...editPeriodForm,
+                    period_name: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {editPeriodForm.start_date ? (
+                      format(new Date(editPeriodForm.start_date), "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={
+                      editPeriodForm.start_date
+                        ? new Date(editPeriodForm.start_date)
+                        : undefined
+                    }
+                    onSelect={(date) => {
+                      if (date) {
+                        setEditPeriodForm({
+                          ...editPeriodForm,
+                          start_date: date.toISOString(),
+                        });
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label>End Date (Optional)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {editPeriodForm.end_date ? (
+                      format(new Date(editPeriodForm.end_date), "PPP")
+                    ) : (
+                      <span>No end date (ongoing)</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <div className="p-2 border-b">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-left font-normal"
+                      onClick={() =>
+                        setEditPeriodForm({ ...editPeriodForm, end_date: "" })
+                      }
+                    >
+                      No end date (ongoing)
+                    </Button>
+                  </div>
+                  <Calendar
+                    mode="single"
+                    selected={
+                      editPeriodForm.end_date
+                        ? new Date(editPeriodForm.end_date)
+                        : undefined
+                    }
+                    onSelect={(date) => {
+                      if (date) {
+                        setEditPeriodForm({
+                          ...editPeriodForm,
+                          end_date: date.toISOString(),
+                        });
+                      }
+                    }}
+                    initialFocus
+                    disabled={(date) => {
+                      // Disable dates before start date
+                      if (!editPeriodForm.start_date) return false;
+                      return date < new Date(editPeriodForm.start_date);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditPeriodDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdatePeriod}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
